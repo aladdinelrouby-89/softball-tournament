@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Definity Softball</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF2F8; --card:#FBFCFE; --ink:#13315C; --ink2:#42597A;
+  --line:#D5DFEC; --clay:#2E6FC2; --def:#2E6FC2; --def-bg:transparent;
+  --gold:#B8862E; --muted:#7E8CA0;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px 80px}
+.mono{font-family:"DM Mono",monospace;font-variant-numeric:tabular-nums}
+
+/* header / lineup card */
+header{padding:26px 0 14px}
+.eyebrow{font-family:Oswald;font-weight:600;letter-spacing:.22em;text-transform:uppercase;font-size:12px;color:var(--clay)}
+h1{font-family:Anton;font-weight:400;letter-spacing:.01em;line-height:.9;
+   font-size:clamp(34px,8.5vw,60px);margin:6px 0 6px;text-transform:uppercase}
+h1 .of{color:var(--def)}
+h1 .yr{display:block;font-size:.5em;color:var(--ink2);letter-spacing:.04em;margin-top:4px}
+.sub{font-family:Oswald;font-weight:500;text-transform:uppercase;letter-spacing:.12em;
+   font-size:13px;color:var(--ink2);display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block}
+.dot.live{background:var(--def);box-shadow:0 0 0 0 rgba(46,111,194,.5);animation:p 2s infinite}
+@keyframes p{0%{box-shadow:0 0 0 0 rgba(46,111,194,.45)}70%{box-shadow:0 0 0 7px rgba(46,111,194,0)}100%{box-shadow:0 0 0 0 rgba(46,111,194,0)}}
+.scoreband{height:8px;margin:16px 0 0;border-radius:2px;
+  background:repeating-linear-gradient(90deg,var(--ink) 0 16px,transparent 16px 22px)}
+
+/* tabs */
+nav.tabs{position:sticky;top:0;z-index:5;background:var(--paper);
+  display:flex;gap:6px;padding:12px 0 10px;border-bottom:2px solid var(--ink)}
+.tab{flex:1;font-family:Oswald;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+  font-size:13.5px;padding:10px 4px;border:none;background:transparent;color:var(--ink2);
+  cursor:pointer;border-radius:8px 8px 0 0;transition:.15s;white-space:nowrap}
+.tab[aria-selected=true]{background:var(--ink);color:var(--paper)}
+.tab:focus-visible{outline:2px solid var(--clay);outline-offset:2px}
+@media(max-width:430px){nav.tabs{gap:3px}.tab{font-size:11.5px;letter-spacing:.02em;padding:9px 2px}}
+
+section{display:none;padding-top:18px}
+section.on{display:block;animation:f .25s ease}
+@keyframes f{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* standings */
+.note{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+table{width:100%;border-collapse:collapse}
+.stand th{font-family:Oswald;font-weight:600;text-transform:uppercase;letter-spacing:.05em;
+  font-size:11px;color:var(--ink2);text-align:center;padding:8px 4px;border-bottom:2px solid var(--ink)}
+.stand th.l{text-align:left;padding-left:34px}
+.stand td{padding:11px 4px;text-align:center;border-bottom:1px solid var(--line);font-size:14px}
+.stand td.team{text-align:left;font-weight:600;font-size:14.5px}
+.rank{display:inline-flex;width:22px;justify-content:center;color:var(--muted);
+  font-family:"DM Mono";font-size:13px;margin-right:10px}
+.pts{font-family:"DM Mono";font-weight:500;font-size:15px}
+.crest{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:9px;vertical-align:1px;background:var(--ink)}
+
+/* schedule */
+.weekblock{margin-bottom:22px}
+.weekhead{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 9px;
+  border-bottom:1px solid var(--line);padding-bottom:6px}
+.weekhead .wk{font-family:Oswald;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px}
+.weekhead .dt{font-size:12px;color:var(--muted);font-family:"DM Mono"}
+.game{display:grid;grid-template-columns:76px 1fr;align-items:stretch;
+  background:var(--card);border:1px solid var(--line);border-radius:10px;
+  overflow:hidden;margin-bottom:7px}
+.venue{display:flex;align-items:center;justify-content:center;
+  background:#E7EFFA;color:var(--clay);padding:8px 6px;text-align:center;border-right:1px solid var(--line)}
+.venue .nm{font-family:Oswald;font-weight:700;text-transform:uppercase;letter-spacing:.01em;
+  font-size:9px;line-height:1.1;white-space:nowrap}
+.matchrow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:11px 12px}
+.gt{font-size:13.5px;font-weight:600;line-height:1.15}
+.gt.home{text-align:right}
+.gt .meta{display:block;font-weight:400;font-size:10.5px;color:var(--muted);
+  font-family:Oswald;letter-spacing:.04em;text-transform:uppercase;margin-top:2px}
+.score{display:flex;align-items:center;gap:7px;font-family:"DM Mono";font-weight:500;font-size:18px}
+.score .v{min-width:20px;text-align:center}
+.score .x{font-size:11px;color:var(--muted);font-family:Oswald}
+.win{color:var(--def)}.lose{color:var(--muted)}
+.badge{font-family:Oswald;font-weight:600;font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--clay);border:1px solid var(--clay);border-radius:4px;padding:1px 5px}
+.badge.final{color:var(--ink2);border-color:var(--line)}
+.bye{display:flex;align-items:center;gap:11px;margin-top:9px;padding:10px 13px;
+  background:#E3ECF9;border:1.5px dashed #9FBEE6;border-radius:10px}
+.bye .chip{font-family:Oswald;font-weight:700;text-transform:uppercase;letter-spacing:.12em;
+  font-size:10px;color:#fff;background:var(--clay);padding:4px 10px;border-radius:5px;white-space:nowrap}
+.bye .team{font-family:Oswald;font-weight:700;text-transform:uppercase;letter-spacing:.03em;
+  font-size:15px;color:var(--ink);line-height:1}
+.bye .rest{font-size:11px;color:var(--ink2);margin-left:auto;white-space:nowrap}
+@media(max-width:430px){.bye .rest{display:none}}
+
+/* bracket */
+.bracket{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px}
+.round{min-width:200px;flex:1}
+.round h3{font-family:Oswald;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  font-size:13px;color:var(--clay);margin:0 0 10px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.match{background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:10px;margin-bottom:12px}
+.match .row{display:flex;justify-content:space-between;align-items:center;padding:5px 2px}
+.match .row+.row{border-top:1px solid var(--line)}
+.match .nm{font-size:13px;font-weight:600}.match .nm.tbd{color:var(--muted);font-weight:400;font-style:italic}
+.match .sc{font-family:"DM Mono";font-size:15px}
+.match .meta{font-size:10px;color:var(--muted);font-family:Oswald;text-transform:uppercase;letter-spacing:.05em;margin-top:6px}
+.champ{text-align:center;padding:18px 10px;border:1px solid var(--gold);background:#FBF6E8;border-radius:10px}
+.champ .cap{font-family:Oswald;text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--gold)}
+.champ .nm{font-family:Anton;font-size:28px;text-transform:uppercase;margin-top:4px}
+.champ .nm.tbd{color:var(--muted);font-size:18px;font-family:Oswald}
+
+/* locations */
+.loc{background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:16px;margin-bottom:12px}
+.loc .top{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.loc .nm{font-family:Oswald;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  font-size:18px;color:var(--ink)}
+.loc .city{font-size:11px;color:var(--muted);font-family:Oswald;text-transform:uppercase;letter-spacing:.06em}
+.loc .addr{font-size:13.5px;color:var(--ink2);margin:2px 0 0}
+.loc .note{font-size:12.5px;color:var(--muted);margin:8px 0 0;padding:8px 10px;
+  background:#EEF3FA;border-radius:8px;border-left:3px solid var(--clay)}
+.loc .links{display:flex;gap:8px;margin-top:13px}
+.loc a.map{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+  text-decoration:none;font-family:Oswald;font-weight:600;text-transform:uppercase;
+  letter-spacing:.05em;font-size:12.5px;padding:10px;border-radius:9px;transition:.15s}
+.loc a.g{background:var(--clay);color:#fff}
+.loc a.g:hover{filter:brightness(1.08)}
+.loc a.a{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.loc a.a:hover{border-color:var(--ink2)}
+.loc a.map:focus-visible{outline:2px solid var(--clay);outline-offset:2px}
+.statusbar{font-size:11.5px;color:var(--muted);text-align:center;margin:0 0 10px;font-family:"DM Mono"}
+.statusbar.err{color:var(--clay)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">2026 Season</div>
+  <h1>Hamilton Mixed<br>Insurance <span class="of">Softball</span><span class="yr">2026</span></h1>
+  <div class="sub">
+    <span><span id="livedot" class="dot"></span> <span id="livetxt">Season tracker</span></span>
+    <span>9 Teams</span><span>Hamilton</span>
+  </div>
+  <div class="scoreband"></div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" data-t="schedule">Schedule</button>
+  <button class="tab" role="tab" aria-selected="false" data-t="standings">Standings</button>
+  <button class="tab" role="tab" aria-selected="false" data-t="playoffs">Playoffs</button>
+  <button class="tab" role="tab" aria-selected="false" data-t="locations">Diamonds</button>
+</nav>
+
+<div class="statusbar" id="status"></div>
+
+<section id="schedule" class="on"><div id="schedbody"></div></section>
+
+<section id="standings">
+  <p class="note">Win = 2 pts &middot; Tie = 1 &middot; Loss = 0. Ties broken by win %, then run differential. Top 8 make the playoffs.</p>
+  <table class="stand"><thead><tr>
+    <th class="l">Team</th><th>GP</th><th>W</th><th>L</th><th>T</th><th>RF</th><th>RA</th><th>+/-</th><th>Pts</th>
+  </tr></thead><tbody id="standbody"></tbody></table>
+</section>
+
+<section id="playoffs">
+  <p class="note">Brackets fill in automatically once the admin enters the playoff matchups in the sheet.</p>
+  <div class="bracket" id="bracketbody"></div>
+</section>
+
+<section id="locations">
+  <p class="note">Tap a button for directions. Churchill 1 &amp; 2 share one park — different parking depending on your diamond.</p>
+  <div id="locbody"></div>
+</section>
+</div>
+
+<script>
+/* =================================================================
+   SETUP — paste your Google Sheet link here (one line), then save.
+   How to get it:
+   1. Open your "Definity Softball Scores" Google Sheet.
+   2. Share -> General access -> "Anyone with the link" -> Viewer.
+   3. Copy the sheet ID from the URL: docs.google.com/spreadsheets/d/THIS_PART/edit
+   4. Paste it between the quotes below.
+   Leave it blank to preview the schedule with no scores.
+   ================================================================= */
+const SHEET_ID = "1NIkwoBBaVLGavJc7qvySY1W8NoznhMB0CvgFyIZj6ic";              // <-- paste the long ID here
+const SHEET_TAB = "Scores";       // tab name (don't change unless you renamed it)
+const CSV_URL = SHEET_ID
+  ? `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_TAB)}`
+  : "";
+
+const DATA = {"teams": ["Agro Litigators", "FirstOntario", "Definity", "Sullivan Festeryga Thin Skulls", "Crown Attorneys", "O'Callaghan Subrogators", "Scarfone - Sultans of Swing", "McHugh Hitmore", "Adverse Inferences (Ross)"], "games": [{"phase": "season", "week": "Week 1", "date": "Thu May 28, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Agro Litigators", "away": "FirstOntario"}, {"phase": "season", "week": "Week 1", "date": "Thu May 28, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Sullivan Festeryga Thin Skulls", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 1", "date": "Thu May 28, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Scarfone - Sultans of Swing", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 1", "date": "Thu May 28, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "O'Callaghan Subrogators", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 2", "date": "Thu Jun 4, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Crown Attorneys", "away": "Definity"}, {"phase": "season", "week": "Week 2", "date": "Thu Jun 4, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Adverse Inferences (Ross)", "away": "FirstOntario"}, {"phase": "season", "week": "Week 2", "date": "Thu Jun 4, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Sullivan Festeryga Thin Skulls", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 2", "date": "Thu Jun 4, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Agro Litigators", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 3", "date": "Thu Jun 11, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "FirstOntario", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 3", "date": "Thu Jun 11, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Definity", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 3", "date": "Thu Jun 11, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "O'Callaghan Subrogators", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 3", "date": "Thu Jun 11, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Adverse Inferences (Ross)", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 4", "date": "Thu Jun 18, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Definity", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 4", "date": "Thu Jun 18, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "O'Callaghan Subrogators", "away": "FirstOntario"}, {"phase": "season", "week": "Week 4", "date": "Thu Jun 18, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Adverse Inferences (Ross)", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 4", "date": "Thu Jun 18, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "McHugh Hitmore", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 5", "date": "Thu Jun 25, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "O'Callaghan Subrogators", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 5", "date": "Thu Jun 25, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Definity", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 5", "date": "Thu Jun 25, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Scarfone - Sultans of Swing", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 5", "date": "Thu Jun 25, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Sullivan Festeryga Thin Skulls", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 6", "date": "Thu Jul 2, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Sullivan Festeryga Thin Skulls", "away": "FirstOntario"}, {"phase": "season", "week": "Week 6", "date": "Thu Jul 2, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Scarfone - Sultans of Swing", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 6", "date": "Thu Jul 2, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Definity", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 6", "date": "Thu Jul 2, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "O'Callaghan Subrogators", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 7", "date": "Thu Jul 9, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Agro Litigators", "away": "Definity"}, {"phase": "season", "week": "Week 7", "date": "Thu Jul 9, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Sullivan Festeryga Thin Skulls", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 7", "date": "Thu Jul 9, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "McHugh Hitmore", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 7", "date": "Thu Jul 9, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "FirstOntario", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 8", "date": "Thu Jul 16, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Crown Attorneys", "away": "FirstOntario"}, {"phase": "season", "week": "Week 8", "date": "Thu Jul 16, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Agro Litigators", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 8", "date": "Thu Jul 16, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "O'Callaghan Subrogators", "away": "Definity"}, {"phase": "season", "week": "Week 8", "date": "Thu Jul 16, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Sullivan Festeryga Thin Skulls", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 9", "date": "Thu Jul 23, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Scarfone - Sultans of Swing", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 9", "date": "Thu Jul 23, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "FirstOntario", "away": "Definity"}, {"phase": "season", "week": "Week 9", "date": "Thu Jul 23, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Sullivan Festeryga Thin Skulls", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 9", "date": "Thu Jul 23, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Agro Litigators", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 10", "date": "Thu Jul 30, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "McHugh Hitmore", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 10", "date": "Thu Jul 30, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Crown Attorneys", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 10", "date": "Thu Jul 30, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Agro Litigators", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 10", "date": "Thu Jul 30, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Adverse Inferences (Ross)", "away": "Definity"}, {"phase": "season", "week": "Week 11", "date": "Thu Aug 6, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "FirstOntario", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 11", "date": "Thu Aug 6, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "O'Callaghan Subrogators", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 11", "date": "Thu Aug 6, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Definity", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 11", "date": "Thu Aug 6, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Scarfone - Sultans of Swing", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 12", "date": "Thu Aug 13, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Sullivan Festeryga Thin Skulls", "away": "Definity"}, {"phase": "season", "week": "Week 12", "date": "Thu Aug 13, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "McHugh Hitmore", "away": "FirstOntario"}, {"phase": "season", "week": "Week 12", "date": "Thu Aug 13, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Scarfone - Sultans of Swing", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 12", "date": "Thu Aug 13, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Crown Attorneys", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 13", "date": "Thu Aug 20, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "FirstOntario", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 13", "date": "Thu Aug 20, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Adverse Inferences (Ross)", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 13", "date": "Thu Aug 20, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Definity", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 13", "date": "Thu Aug 20, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "McHugh Hitmore", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 14", "date": "Thu Aug 27, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Scarfone - Sultans of Swing", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 14", "date": "Thu Aug 27, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Agro Litigators", "away": "FirstOntario"}, {"phase": "season", "week": "Week 14", "date": "Thu Aug 27, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "O'Callaghan Subrogators", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 14", "date": "Thu Aug 27, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Sullivan Festeryga Thin Skulls", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 15", "date": "Thu Sep 3, 2026", "time": "6:00 PM", "diamond": "Churchill 1", "home": "FirstOntario", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 15", "date": "Thu Sep 3, 2026", "time": "6:00 PM", "diamond": "Churchill 2", "home": "Crown Attorneys", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 15", "date": "Thu Sep 3, 2026", "time": "6:00 PM", "diamond": "Valley Park", "home": "McHugh Hitmore", "away": "Definity"}, {"phase": "season", "week": "Week 15", "date": "Thu Sep 3, 2026", "time": "6:00 PM", "diamond": "Highview Park", "home": "Agro Litigators", "away": "Scarfone - Sultans of Swing"}, {"phase": "playoff", "week": "Playoffs Week 1", "date": "Thu Sep 10, 2026", "time": "6:00 PM", "diamond": "Churchill 1", "home": "", "away": ""}, {"phase": "playoff", "week": "Playoffs Week 1", "date": "Thu Sep 10, 2026", "time": "6:00 PM", "diamond": "Churchill 2", "home": "", "away": ""}, {"phase": "playoff", "week": "Playoffs Week 1", "date": "Thu Sep 10, 2026", "time": "6:00 PM", "diamond": "Valley Park", "home": "", "away": ""}, {"phase": "playoff", "week": "Playoffs Week 1", "date": "Thu Sep 10, 2026", "time": "6:00 PM", "diamond": "Highview Park", "home": "", "away": ""}, {"phase": "playoff", "week": "Playoffs Week 2", "date": "Thu Sep 17, 2026", "time": "6:00 PM", "diamond": "Valley Park", "home": "", "away": ""}, {"phase": "playoff", "week": "Playoffs Week 2", "date": "Thu Sep 17, 2026", "time": "6:00 PM", "diamond": "Highview Park", "home": "", "away": ""}, {"phase": "playoff", "week": "Championship", "date": "Thu Sep 24, 2026", "time": "6:00 PM", "diamond": "Valley Park", "home": "", "away": ""}], "byes": {"Week 1": "Definity", "Week 2": "McHugh Hitmore", "Week 3": "Agro Litigators", "Week 4": "Sullivan Festeryga Thin Skulls", "Week 5": "FirstOntario", "Week 6": "Adverse Inferences (Ross)", "Week 7": "Crown Attorneys", "Week 8": "Scarfone - Sultans of Swing", "Week 9": "O'Callaghan Subrogators", "Week 10": "FirstOntario", "Week 11": "McHugh Hitmore", "Week 12": "Agro Litigators", "Week 13": "Scarfone - Sultans of Swing", "Week 14": "Definity", "Week 15": "Adverse Inferences (Ross)"}};
+const DEF = "Definity";
+const LOCATIONS = [
+  {nm:"Churchill 1", addr:"167 Cline Ave N, Hamilton, ON", city:"Hamilton", note:"Parking is closer on Marion Ave."},
+  {nm:"Churchill 2", addr:"167 Cline Ave N, Hamilton, ON", city:"Hamilton", note:"By the washrooms — parking is closer to Parkside."},
+  {nm:"Valley Park", addr:"970 Paramount Dr, Stoney Creek, ON L8J 1Y2", city:"Stoney Creek", note:""},
+  {nm:"Highview Park", addr:"879 Brucedale Ave E, Hamilton, ON L8T 1L6", city:"Hamilton", note:""},
+];
+
+/* ---- tiny CSV parser (handles quoted fields) ---- */
+function parseCSV(text){
+  const rows=[];let row=[],f="",q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){ if(c=='"'){ if(text[i+1]=='"'){f+='"';i++;} else q=false;} else f+=c;}
+    else{ if(c=='"')q=true; else if(c==','){row.push(f);f="";}
+      else if(c=='\n'){row.push(f);rows.push(row);row=[];f="";}
+      else if(c=='\r'){} else f+=c;}
+  }
+  if(f.length||row.length){row.push(f);rows.push(row);}
+  return rows;
+}
+function num(v){v=(v||"").trim();return v===""?null:(isNaN(+v)?null:+v);}
+
+/* ---- fetch scores, build a lookup keyed by week|diamond ---- */
+async function loadScores(){
+  const map={};
+  if(!CSV_URL) return {map,state:"nourl"};
+  try{
+    const r=await fetch(CSV_URL,{cache:"no-store"});
+    if(!r.ok) throw 0;
+    const rows=parseCSV(await r.text());
+    const head=rows[0].map(h=>h.trim().toLowerCase());
+    const idx=n=>head.indexOf(n);
+    const iW=idx("week"),iD=idx("diamond"),iH=idx("home"),iA=idx("away"),iHS=idx("homescore"),iAS=idx("awayscore");
+    for(let r2=1;r2<rows.length;r2++){const c=rows[r2];if(!c[iW])continue;
+      const key=(c[iW]||"").trim()+"|"+(c[iD]||"").trim();
+      map[key]={home:(c[iH]||"").trim(),away:(c[iA]||"").trim(),hs:num(c[iHS]),as:num(c[iAS])};
+    }
+    return {map,state:"ok"};
+  }catch(e){return {map,state:"err"};}
+}
+
+/* ---- merge sheet scores onto baked schedule ---- */
+function merge(scores){
+  return DATA.games.map(g=>{
+    const s=scores[g.week+"|"+g.diamond];
+    const home = g.home || (s&&s.home) || "";
+    const away = g.away || (s&&s.away) || "";
+    const hs = s?s.hs:null, as = s?s.as:null;
+    const played = hs!=null && as!=null;
+    return {...g,home,away,hs,as,played};
+  });
+}
+
+/* ---- standings ---- */
+function standings(games){
+  const t={};DATA.teams.forEach(n=>t[n]={n,GP:0,W:0,L:0,T:0,RF:0,RA:0});
+  games.filter(g=>g.phase=="season"&&g.played).forEach(g=>{
+    const h=t[g.home],a=t[g.away];if(!h||!a)return;
+    h.GP++;a.GP++;h.RF+=g.hs;h.RA+=g.as;a.RF+=g.as;a.RA+=g.hs;
+    if(g.hs>g.as){h.W++;a.L++;}else if(g.hs<g.as){a.W++;h.L++;}else{h.T++;a.T++;}
+  });
+  const arr=Object.values(t).map(x=>({...x,PTS:x.W*2+x.T,DIFF:x.RF-x.RA,
+    PCT:x.GP?(x.W+0.5*x.T)/x.GP:0}));
+  arr.sort((p,q)=>q.PTS-p.PTS||q.PCT-p.PCT||q.DIFF-p.DIFF||q.RF-p.RF||p.n.localeCompare(q.n));
+  return arr;
+}
+
+/* ---- renderers ---- */
+function renderStandings(arr){
+  const b=document.getElementById("standbody");b.innerHTML="";
+  arr.forEach((x,i)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="team"><span class="rank">${i+1}</span><span class="crest"></span>${x.n}</td>
+      <td class="mono">${x.GP}</td><td class="mono">${x.W}</td><td class="mono">${x.L}</td><td class="mono">${x.T}</td>
+      <td class="mono">${x.RF}</td><td class="mono">${x.RA}</td>
+      <td class="mono">${x.DIFF>0?"+":""}${x.DIFF}</td><td class="pts">${x.PTS}</td>`;
+    b.appendChild(tr);
+  });
+}
+function side(name,score,opp,isDef){
+  let cls="gt";let scls="v";
+  if(score!=null&&opp!=null){if(score>opp)scls+=" win";else if(score<opp)scls+=" lose";}
+  return {name:name||"TBD",score};
+}
+function renderSchedule(games){
+  const host=document.getElementById("schedbody");host.innerHTML="";
+  const season=games.filter(g=>g.phase=="season");
+  const byWeek={};season.forEach(g=>{(byWeek[g.week]=byWeek[g.week]||[]).push(g)});
+  Object.keys(byWeek).forEach(wk=>{
+    const gs=byWeek[wk];const blk=document.createElement("div");blk.className="weekblock";
+    blk.innerHTML=`<div class="weekhead"><span class="wk">${wk}</span><span class="dt">${gs[0].date} &middot; ${gs[0].time}</span></div>`;
+    gs.forEach(g=>{
+      const hw=g.played&&g.hs>g.as,aw=g.played&&g.as>g.hs;
+      const mid = g.played
+        ? `<div class="score"><span class="v ${hw?'win':aw?'lose':''}">${g.hs}</span><span class="x">–</span><span class="v ${aw?'win':hw?'lose':''}">${g.as}</span></div>`
+        : `<div class="score"><span class="badge">${g.time}</span></div>`;
+      const el=document.createElement("div");el.className="game";
+      el.innerHTML=`<div class="venue"><span class="nm">${g.diamond}</span></div>
+        <div class="matchrow">
+          <div class="gt home">${g.home}<span class="meta">Home</span></div>
+          ${mid}
+          <div class="gt away">${g.away}<span class="meta">Away</span></div>
+        </div>`;
+      blk.appendChild(el);
+    });
+    const bye=DATA.byes[wk];
+    if(bye)blk.innerHTML+=`<div class="bye"><span class="chip">Bye Week</span><span class="team">${bye}</span><span class="rest">rests this week</span></div>`;
+    host.appendChild(blk);
+  });
+}
+function renderBracket(games){
+  const host=document.getElementById("bracketbody");host.innerHTML="";
+  const rounds=["Playoffs Week 1","Playoffs Week 2","Championship"];
+  rounds.forEach(rn=>{
+    const gs=games.filter(g=>g.week===rn);if(!gs.length)return;
+    const col=document.createElement("div");col.className="round";
+    col.innerHTML=`<h3>${rn.replace('Playoffs ','')}</h3>`;
+    if(rn==="Championship"){
+      const g=gs[0];const champ=g.played?(g.hs>g.as?g.home:g.away):"";
+      col.innerHTML+=`<div class="champ"><div class="cap">Champion</div>
+        <div class="nm ${champ?'':'tbd'}">${champ||"TBD"}</div></div>
+        <div class="match"><div class="row"><span class="nm ${g.home?'':'tbd'}">${g.home||'TBD'}</span><span class="sc">${g.hs??''}</span></div>
+        <div class="row"><span class="nm ${g.away?'':'tbd'}">${g.away||'TBD'}</span><span class="sc">${g.as??''}</span></div>
+        <div class="meta">${g.diamond} &middot; ${g.date}</div></div>`;
+    }else{
+      gs.forEach(g=>{
+        const hw=g.played&&g.hs>g.as,aw=g.played&&g.as>g.hs;
+        col.innerHTML+=`<div class="match">
+          <div class="row"><span class="nm ${g.home?'':'tbd'} ${hw?'win':''}">${g.home||'TBD'}</span><span class="sc">${g.hs??''}</span></div>
+          <div class="row"><span class="nm ${g.away?'':'tbd'} ${aw?'win':''}">${g.away||'TBD'}</span><span class="sc">${g.as??''}</span></div>
+          <div class="meta">${g.diamond} &middot; ${g.date}</div></div>`;
+      });
+    }
+    host.appendChild(col);
+  });
+}
+function renderLocations(){
+  const host=document.getElementById("locbody");host.innerHTML="";
+  LOCATIONS.forEach(L=>{
+    const q=encodeURIComponent(L.addr);
+    const g=`https://www.google.com/maps/search/?api=1&query=${q}`;
+    const a=`https://maps.apple.com/?q=${q}`;
+    const el=document.createElement("div");el.className="loc";
+    el.innerHTML=`<div class="top"><span class="nm">${L.nm}</span><span class="city">${L.city}</span></div>
+      <p class="addr">${L.addr}</p>
+      ${L.note?`<p class="note">${L.note}</p>`:""}
+      <div class="links">
+        <a class="map g" href="${g}" target="_blank" rel="noopener">Google Maps</a>
+        <a class="map a" href="${a}" target="_blank" rel="noopener">Apple Maps</a>
+      </div>`;
+    host.appendChild(el);
+  });
+}
+document.querySelectorAll(".tab").forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected","false"));
+    t.setAttribute("aria-selected","true");
+    document.querySelectorAll("section").forEach(s=>s.classList.remove("on"));
+    document.getElementById(t.dataset.t).classList.add("on");
+  };
+});
+
+/* ---- boot ---- */
+(async()=>{
+  const {map,state}=await loadScores();
+  const games=merge(map);
+  renderStandings(standings(games));
+  renderSchedule(games);
+  renderBracket(games);
+  renderLocations();
+  const sb=document.getElementById("status");
+  const dot=document.getElementById("livedot"),lt=document.getElementById("livetxt");
+  if(state==="ok"){sb.style.display="none";dot.className="dot live";lt.textContent="Live scores";}
+  else if(state==="nourl"){sb.style.display="none";}
+  else{sb.className="statusbar err";sb.textContent="Couldn't reach the sheet. Showing the schedule. Check the share setting is 'Anyone with the link'.";}
+})();
+</script>
+</body>
+</html>
