@@ -82,11 +82,12 @@ table{width:100%;border-collapse:collapse}
 .score{display:flex;align-items:center;gap:7px;font-family:"DM Mono";font-weight:500;font-size:18px}
 .score .v{min-width:20px;text-align:center}
 .score .x{font-size:11px;color:var(--muted);font-family:Oswald}
-.win{color:var(--def)}.lose{color:var(--muted)}
+.win{color:var(--def);font-weight:700;}
+.lose{color:var(--muted)}
 .badge{font-family:Oswald;font-weight:600;font-size:9px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--clay);border:1px solid var(--clay);border-radius:4px;padding:1px 5px}
 .badge.final{color:var(--ink2);border-color:var(--line)}
-.badge.postponed{color:var(--muted);border-color:var(--line)}
+.badge.postponed{color:#D9383A;border-color:#D9383A;background:#FDF2F2;}
 .bye{display:flex;align-items:center;gap:11px;margin-top:9px;padding:10px 13px;
   background:#E3ECF9;border:1.5px dashed #9FBEE6;border-radius:10px}
 .bye .chip{font-family:Oswald;font-weight:700;text-transform:uppercase;letter-spacing:.12em;
@@ -161,9 +162,9 @@ table{width:100%;border-collapse:collapse}
 <section id="schedule" class="on"><div id="schedbody"></div></section>
 
 <section id="standings">
-  <p class="note">Win = 3 pts · Loss = 0 pts. Top 8 make the playoffs.</p>
+  <p class="note">Win = 3 pts &middot; Loss = 0 pts. No ties.</p>
   <table class="stand"><thead><tr>
-    <th class="l">Team</th><th>GP</th><th>W</th><th>L</th><th>%</th><th>Pts</th>
+    <th class="l">Team</th><th>GP</th><th>GW</th><th>GL</th><th>%</th><th>Pts</th>
   </tr></thead><tbody id="standbody"></tbody></table>
 </section>
 
@@ -173,7 +174,7 @@ table{width:100%;border-collapse:collapse}
 </section>
 
 <section id="locations">
-  <p class="note">Tap a button for directions. Churchill 1 & 2 share one park — different parking depending on your diamond.</p>
+  <p class="note">Tap a button for directions. Churchill 1 &amp; 2 share one park — different parking depending on your diamond.</p>
   <div id="locbody"></div>
 </section>
 </div>
@@ -182,10 +183,208 @@ table{width:100%;border-collapse:collapse}
 /* =================================================================
    SETUP — paste your Google Sheet link here (one line), then save.
    ================================================================= */
-const SHEET_ID = "1NIkwoBBaVLGavJc7qvySY1W8NoznhMB0CvgFyIZj6ic";
-const SHEET_TAB = "Scores";
+const SHEET_ID = "1NIkwoBBaVLGavJc7qvySY1W8NoznhMB0CvgFyIZj6ic";              // <-- paste the long ID here
+const SHEET_TAB = "Scores";       // tab name
 const CSV_URL = SHEET_ID
   ? `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_TAB)}`
   : "";
 
-const DATA = {"teams": ["Agro Litigators", "FirstOntario", "Definity", "Sullivan Festeryga Thin Skulls", "Crown Attorneys", "O'Callaghan Subrogators", "Scarfone - Sultans of Swing", "McHugh Hitmore", "Adverse Inferences (Ross)"], "games": [{"phase": "season", "week": "Week 1", "date": "Thu May 28, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Agro Litigators", "away": "FirstOntario"}, {"phase": "season", "week": "Week 1", "date": "Thu May 28, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Sullivan Festeryga Thin Skulls", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 1", "date": "Thu May 28, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Scarfone - Sultans of Swing", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 1", "date": "Thu May 28, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "O'Callaghan Subrogators", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 2", "date": "Thu Jun 4, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Crown Attorneys", "away": "Definity"}, {"phase": "season", "week": "Week 2", "date": "Thu Jun 4, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Adverse Inferences (Ross)", "away": "FirstOntario"}, {"phase": "season", "week": "Week 2", "date": "Thu Jun 4, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Sullivan Festeryga Thin Skulls", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 2", "date": "Thu Jun 4, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Agro Litigators", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 3", "date": "Thu Jun 11, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "FirstOntario", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 3", "date": "Thu Jun 11, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Definity", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 3", "date": "Thu Jun 11, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "O'Callaghan Subrogators", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 3", "date": "Thu Jun 11, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Adverse Inferences (Ross)", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 4", "date": "Thu Jun 18, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Definity", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 4", "date": "Thu Jun 18, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "O'Callaghan Subrogators", "away": "FirstOntario"}, {"phase": "season", "week": "Week 4", "date": "Thu Jun 18, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Adverse Inferences (Ross)", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 4", "date": "Thu Jun 18, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "McHugh Hitmore", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 5", "date": "Thu Jun 25, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "O'Callaghan Subrogators", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 5", "date": "Thu Jun 25, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Definity", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 5", "date": "Thu Jun 25, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Scarfone - Sultans of Swing", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 5", "date": "Thu Jun 25, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Sullivan Festeryga Thin Skulls", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 6", "date": "Thu Jul 2, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Sullivan Festeryga Thin Skulls", "away": "FirstOntario"}, {"phase": "season", "week": "Week 6", "date": "Thu Jul 2, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Scarfone - Sultans of Swing", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 6", "date": "Thu Jul 2, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Definity", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 6", "date": "Thu Jul 2, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "O'Callaghan Subrogators", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 7", "date": "Thu Jul 9, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Agro Litigators", "away": "Definity"}, {"phase": "season", "week": "Week 7", "date": "Thu Jul 9, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Sullivan Festeryga Thin Skulls", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 7", "date": "Thu Jul 9, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "McHugh Hitmore", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 7", "date": "Thu Jul 9, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "FirstOntario", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 8", "date": "Thu Jul 16, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Crown Attorneys", "away": "FirstOntario"}, {"phase": "season", "week": "Week 8", "date": "Thu Jul 16, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Agro Litigators", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 8", "date": "Thu Jul 16, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "O'Callaghan Subrogators", "away": "Definity"}, {"phase": "season", "week": "Week 8", "date": "Thu Jul 16, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Sullivan Festeryga Thin Skulls", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 9", "date": "Thu Jul 23, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Scarfone - Sultans of Swing", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 9", "date": "Thu Jul 23, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "FirstOntario", "away": "Definity"}, {"phase": "season", "week": "Week 9", "date": "Thu Jul 23, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Sullivan Festeryga Thin Skulls", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 9", "date": "Thu Jul 23, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Agro Litigators", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 10", "date": "Thu Jul 30, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "McHugh Hitmore", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 10", "date": "Thu Jul 30, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Crown Attorneys", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 10", "date": "Thu Jul 30, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Agro Litigators", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 10", "date": "Thu Jul 30, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Adverse Inferences (Ross)", "away": "Definity"}, {"phase": "season", "week": "Week 11", "date": "Thu Aug 6, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "FirstOntario", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 11", "date": "Thu Aug 6, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "O'Callaghan Subrogators", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 11", "date": "Thu Aug 6, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Definity", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 11", "date": "Thu Aug 6, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Scarfone - Sultans of Swing", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 12", "date": "Thu Aug 13, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Sullivan Festeryga Thin Skulls", "away": "Definity"}, {"phase": "season", "week": "Week 12", "date": "Thu Aug 13, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "McHugh Hitmore", "away": "FirstOntario"}, {"phase": "season", "week": "Week 12", "date": "Thu Aug 13, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Scarfone - Sultans of Swing", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 12", "date": "Thu Aug 13, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Crown Attorneys", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 13", "date": "Thu Aug 20, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "FirstOntario", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 13", "date": "Thu Aug 20, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Adverse Inferences (Ross)", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 13", "date": "Thu Aug 20, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Definity", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "
+const DATA = {"teams": ["Agro Litigators", "FirstOntario", "Definity", "Sullivan Festeryga Thin Skulls", "Crown Attorneys", "O'Callaghan Subrogators", "Scarfone - Sultans of Swing", "McHugh Hitmore", "Adverse Inferences (Ross)"], "games": [{"phase": "season", "week": "Week 1", "date": "Thu May 28, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Agro Litigators", "away": "FirstOntario"}, {"phase": "season", "week": "Week 1", "date": "Thu May 28, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Sullivan Festeryga Thin Skulls", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 1", "date": "Thu May 28, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Scarfone - Sultans of Swing", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 1", "date": "Thu May 28, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "O'Callaghan Subrogators", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 2", "date": "Thu Jun 4, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Crown Attorneys", "away": "Definity"}, {"phase": "season", "week": "Week 2", "date": "Thu Jun 4, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Adverse Inferences (Ross)", "away": "FirstOntario"}, {"phase": "season", "week": "Week 2", "date": "Thu Jun 4, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Sullivan Festeryga Thin Skulls", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 2", "date": "Thu Jun 4, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Agro Litigators", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 3", "date": "Thu Jun 11, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "FirstOntario", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 3", "date": "Thu Jun 11, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Definity", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 3", "date": "Thu Jun 11, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "O'Callaghan Subrogators", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 3", "date": "Thu Jun 11, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Adverse Inferences (Ross)", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 4", "date": "Thu Jun 18, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Definity", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 4", "date": "Thu Jun 18, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "O'Callaghan Subrogators", "away": "FirstOntario"}, {"phase": "season", "week": "Week 4", "date": "Thu Jun 18, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Adverse Inferences (Ross)", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 4", "date": "Thu Jun 18, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "McHugh Hitmore", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 5", "date": "Thu Jun 25, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "O'Callaghan Subrogators", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 5", "date": "Thu Jun 25, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Definity", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 5", "date": "Thu Jun 25, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Scarfone - Sultans of Swing", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 5", "date": "Thu Jun 25, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Sullivan Festeryga Thin Skulls", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 6", "date": "Thu Jul 2, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Sullivan Festeryga Thin Skulls", "away": "FirstOntario"}, {"phase": "season", "week": "Week 6", "date": "Thu Jul 2, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Scarfone - Sultans of Swing", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 6", "date": "Thu Jul 2, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Definity", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 6", "date": "Thu Jul 2, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "O'Callaghan Subrogators", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 7", "date": "Thu Jul 9, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Agro Litigators", "away": "Definity"}, {"phase": "season", "week": "Week 7", "date": "Thu Jul 9, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Sullivan Festeryga Thin Skulls", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 7", "date": "Thu Jul 9, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "McHugh Hitmore", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 7", "date": "Thu Jul 9, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "FirstOntario", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 8", "date": "Thu Jul 16, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Crown Attorneys", "away": "FirstOntario"}, {"phase": "season", "week": "Week 8", "date": "Thu Jul 16, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Agro Litigators", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 8", "date": "Thu Jul 16, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "O'Callaghan Subrogators", "away": "Definity"}, {"phase": "season", "week": "Week 8", "date": "Thu Jul 16, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Sullivan Festeryga Thin Skulls", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 9", "date": "Thu Jul 23, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Scarfone - Sultans of Swing", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 9", "date": "Thu Jul 23, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "FirstOntario", "away": "Definity"}, {"phase": "season", "week": "Week 9", "date": "Thu Jul 23, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Sullivan Festeryga Thin Skulls", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 9", "date": "Thu Jul 23, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Agro Litigators", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 10", "date": "Thu Jul 30, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "McHugh Hitmore", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 10", "date": "Thu Jul 30, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Crown Attorneys", "away": "Scarfone - Sultans of Swing"}, {"phase": "season", "week": "Week 10", "date": "Thu Jul 30, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Agro Litigators", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 10", "date": "Thu Jul 30, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Adverse Inferences (Ross)", "away": "Definity"}, {"phase": "season", "week": "Week 11", "date": "Thu Aug 6, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "FirstOntario", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 11", "date": "Thu Aug 6, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "O'Callaghan Subrogators", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 11", "date": "Thu Aug 6, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Definity", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 11", "date": "Thu Aug 6, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Scarfone - Sultans of Swing", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 12", "date": "Thu Aug 13, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Sullivan Festeryga Thin Skulls", "away": "Definity"}, {"phase": "season", "week": "Week 12", "date": "Thu Aug 13, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "McHugh Hitmore", "away": "FirstOntario"}, {"phase": "season", "week": "Week 12", "date": "Thu Aug 13, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Scarfone - Sultans of Swing", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 12", "date": "Thu Aug 13, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Crown Attorneys", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 13", "date": "Thu Aug 20, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "FirstOntario", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 13", "date": "Thu Aug 20, 2026", "time": "6:30 PM", "diamond": "Churchill 2", "home": "Adverse Inferences (Ross)", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 13", "date": "Thu Aug 20, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "Definity", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 13", "date": "Thu Aug 20, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "McHugh Hitmore", "away": "Agro Litigators"}, {"phase": "season", "week": "Week 14", "date": "Thu Aug 27, 2026", "time": "6:30 PM", "diamond": "Churchill 1", "home": "Scarfone - Sultans of Swing", "away": "McHugh Hitmore"}, {"phase": "season", "week": "Week 14", "date": "Thu Aug 27, 2026", "time": "6:30 PM", "diamond": "Agro Litigators", "away": "FirstOntario"}, {"phase": "season", "week": "Week 14", "date": "Thu Aug 27, 2026", "time": "6:30 PM", "diamond": "Valley Park", "home": "O'Callaghan Subrogators", "away": "Adverse Inferences (Ross)"}, {"phase": "season", "week": "Week 14", "date": "Thu Aug 27, 2026", "time": "6:30 PM", "diamond": "Highview Park", "home": "Sullivan Festeryga Thin Skulls", "away": "Crown Attorneys"}, {"phase": "season", "week": "Week 15", "date": "Thu Sep 3, 2026", "time": "6:00 PM", "diamond": "Churchill 1", "home": "FirstOntario", "away": "Sullivan Festeryga Thin Skulls"}, {"phase": "season", "week": "Week 15", "date": "Thu Sep 3, 2026", "time": "6:00 PM", "diamond": "Churchill 2", "home": "Crown Attorneys", "away": "O'Callaghan Subrogators"}, {"phase": "season", "week": "Week 15", "date": "Thu Sep 3, 2026", "time": "6:00 PM", "diamond": "Valley Park", "home": "McHugh Hitmore", "away": "Definity"}, {"phase": "season", "week": "Week 15", "date": "Thu Sep 3, 2026", "time": "6:00 PM", "diamond": "Highview Park", "home": "Agro Litigators", "away": "Scarfone - Sultans of Swing"}, {"phase": "playoff", "week": "Playoffs Week 1", "date": "Thu Sep 10, 2026", "time": "6:00 PM", "diamond": "Churchill 1", "home": "", "away": ""}, {"phase": "playoff", "week": "Playoffs Week 1", "date": "Thu Sep 10, 2026", "time": "6:00 PM", "diamond": "Churchill 2", "home": "", "away": ""}, {"phase": "playoff", "week": "Playoffs Week 1", "date": "Thu Sep 10, 2026", "time": "6:00 PM", "diamond": "Valley Park", "home": "", "away": ""}, {"phase": "playoff", "week": "Playoffs Week 1", "date": "Thu Sep 10, 2026", "time": "6:00 PM", "diamond": "Highview Park", "home": "", "away": ""}, {"phase": "playoff", "week": "Playoffs Week 2", "date": "Thu Sep 17, 2026", "time": "6:00 PM", "diamond": "Valley Park", "home": "", "away": ""}, {"phase": "playoff", "week": "Playoffs Week 2", "date": "Thu Sep 17, 2026", "time": "6:00 PM", "diamond": "Highview Park", "home": "", "away": ""}, {"phase": "playoff", "week": "Championship", "date": "Thu Sep 24, 2026", "time": "6:00 PM", "diamond": "Valley Park", "home": "", "away": ""}], "byes": {"Week 1": "Definity", "Week 2": "McHugh Hitmore", "Week 3": "Agro Litigators", "Week 4": "Sullivan Festeryga Thin Skulls", "Week 5": "FirstOntario", "Week 6": "Adverse Inferences (Ross)", "Week 7": "Crown Attorneys", "Week 8": "Scarfone - Sultans of Swing", "Week 9": "O'Callaghan Subrogators", "Week 10": "FirstOntario", "Week 11": "McHugh Hitmore", "Week 12": "Agro Litigators", "Week 13": "Scarfone - Sultans of Swing", "Week 14": "Definity", "Week 15": "Adverse Inferences (Ross)"}};
+const DEF = "Definity";
+const LOCATIONS = [
+  {nm:"Churchill 1", addr:"167 Cline Ave N, Hamilton, ON", city:"Hamilton", note:"Parking is closer on Marion Ave."},
+  {nm:"Churchill 2", addr:"167 Cline Ave N, Hamilton, ON", city:"Hamilton", note:"By the washrooms — parking is closer to Parkside."},
+  {nm:"Valley Park", addr:"970 Paramount Dr, Stoney Creek, ON L8J 1Y2", city:"Stoney Creek", note:""},
+  {nm:"Highview Park", addr:"879 Brucedale Ave E, Hamilton, ON L8T 1L6", city:"Hamilton", note:""},
+];
+
+/* ---- tiny CSV parser (handles quoted fields) ---- */
+function parseCSV(text){
+  const rows=[];let row=[],f="",q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){ if(c=='"'){ if(text[i+1]=='"'){f+='"';i++;} else q=false;} else f+=c;}
+    else{ if(c=='"')q=true; else if(c==','){row.push(f);f="";}
+      else if(c=='\n'){row.push(f);rows.push(row);row=[];f="";}
+      else if(c=='\r'){} else f+=c;}
+  }
+  if(f.length||row.length){row.push(f);rows.push(row);}
+  return rows;
+}
+function parseScoreString(v){
+  return (v || "").trim().toUpperCase();
+}
+
+/* ---- fetch scores, build a lookup keyed by week|diamond ---- */
+async function loadScores(){
+  const map={};
+  if(!CSV_URL) return {map,state:"nourl"};
+  try{
+    const r=await fetch(CSV_URL,{cache:"no-store"});
+    if(!r.ok) throw 0;
+    const rows=parseCSV(await r.text());
+    const head=rows[0].map(h=>h.trim().toLowerCase());
+    const idx=n=>head.indexOf(n);
+    const iW=idx("week"),iD=idx("diamond"),iH=idx("home"),iA=idx("away"),iHS=idx("homescore"),iAS=idx("awayscore");
+    for(let r2=1;r2<rows.length;r2++){const c=rows[r2];if(!c[iW])continue;
+      const key=(c[iW]||"").trim()+"|"+(c[iD]||"").trim();
+      map[key]={home:(c[iH]||"").trim(),away:(c[iA]||"").trim(),hs:parseScoreString(c[iHS]),as:parseScoreString(c[iAS])};
+    }
+    return {map,state:"ok"};
+  }catch(e){return {map,state:"err"};}
+}
+
+/* ---- merge sheet scores onto baked schedule ---- */
+function merge(scores){
+  return DATA.games.map(g=>{
+    const s=scores[g.week+"|"+g.diamond];
+    const home = g.home || (s&&s.home) || "";
+    const away = g.away || (s&&s.away) || "";
+    const hs = s?s.hs:"";
+    const as = s?s.as:"";
+    const postponed = (hs === "P" || as === "P");
+    const played = !postponed && (hs === "W" || hs === "L" || as === "W" || as === "L");
+    return {...g,home,away,hs,as,played,postponed};
+  });
+}
+
+/* ---- standings ---- */
+function standings(games){
+  const t={};DATA.teams.forEach(n=>t[n]={n,GP:0,GW:0,GL:0});
+  games.filter(g=>g.phase=="season"&&g.played).forEach(g=>{
+    const h=t[g.home],a=t[g.away];if(!h||!a)return;
+    h.GP++;a.GP++;
+    if(g.hs==="W" || g.as==="L"){h.GW++; a.GL++;}
+    else if(g.hs==="L" || g.as==="W"){h.GL++; a.GW++;}
+  });
+  const arr=Object.values(t).map(x=>({
+    ...x,
+    PTS: x.GW * 3,
+    PCT: x.GP ? (x.GW / x.GP) : 0
+  }));
+  arr.sort((p,q)=>q.PTS-p.PTS||q.PCT-p.PCT||p.n.localeCompare(q.n));
+  return arr;
+}
+
+/* ---- renderers ---- */
+function renderStandings(arr){
+  const b=document.getElementById("standbody");b.innerHTML="";
+  arr.forEach((x,i)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="team"><span class="rank">${i+1}</span><span class="crest"></span>${x.n}</td>
+      <td class="mono">${x.GP}</td><td class="mono">${x.GW}</td><td class="mono">${x.GL}</td>
+      <td class="mono">${(x.PCT * 100).toFixed(0)}%</td><td class="pts">${x.PTS}</td>`;
+    b.appendChild(tr);
+  });
+}
+
+function renderSchedule(games){
+  const host=document.getElementById("schedbody");host.innerHTML="";
+  const season=games.filter(g=>g.phase=="season");
+  const byWeek={};season.forEach(g=>{(byWeek[g.week]=byWeek[g.week]||[]).push(g)});
+  Object.keys(byWeek).forEach(wk=>{
+    const gs=byWeek[wk];const blk=document.createElement("div");blk.className="weekblock";
+    blk.innerHTML=`<div class="weekhead"><span class="wk">${wk}</span><span class="dt">${gs[0].date} &middot; ${gs[0].time}</span></div>`;
+    gs.forEach(g=>{
+      let mid = "";
+      let hw = false, aw = false;
+      
+      if (g.postponed) {
+        mid = `<div class="score"><span class="badge postponed">Postponed</span></div>`;
+      } else if (g.played) {
+        hw = g.hs === "W" || g.as === "L";
+        aw = g.as === "W" || g.hs === "L";
+        mid = `<div class="score"><span class="v ${hw?'win':'lose'}">${hw?'W':'L'}</span><span class="x">–</span><span class="v ${aw?'win':'lose'}">${aw?'W':'L'}</span></div>`;
+      } else {
+        mid = `<div class="score"><span class="badge">${g.time}</span></div>`;
+      }
+      
+      const el=document.createElement("div");el.className="game";
+      el.innerHTML=`<div class="venue"><span class="nm">${g.diamond}</span></div>
+        <div class="matchrow">
+          <div class="gt home ${g.played && hw ? 'win' : ''}">${g.home}<span class="meta">Home</span></div>
+          ${mid}
+          <div class="gt away ${g.played && aw ? 'win' : ''}">${g.away}<span class="meta">Away</span></div>
+        </div>`;
+      blk.appendChild(el);
+    });
+    const bye=DATA.byes[wk];
+    if(bye)blk.innerHTML+=`<div class="bye"><span class="chip">Bye Week</span><span class="team">${bye}</span><span class="rest">rests this week</span></div>`;
+    host.appendChild(blk);
+  });
+}
+
+function renderBracket(games){
+  const host=document.getElementById("bracketbody");host.innerHTML="";
+  const rounds=["Playoffs Week 1","Playoffs Week 2","Championship"];
+  rounds.forEach(rn=>{
+    const gs=games.filter(g=>g.week===rn);if(!gs.length)return;
+    const col=document.createElement("div");col.className="round";
+    col.innerHTML=`<h3>${rn.replace('Playoffs ','')}</h3>`;
+    if(rn==="Championship"){
+      const g=gs[0];
+      const hw = g.played && (g.hs === "W" || g.as === "L");
+      const aw = g.played && (g.as === "W" || g.hs === "L");
+      const champ=g.played?(hw?g.home:g.away):"";
+      col.innerHTML+=`<div class="champ"><div class="cap">Champion</div>
+        <div class="nm ${champ?'':'tbd'}">${champ||"TBD"}</div></div>
+        <div class="match"><div class="row"><span class="nm ${g.home?'':'tbd'} ${hw?'win':''}">${g.home||'TBD'}</span><span class="sc">${g.played ? (hw?'W':'L') : ''}</span></div>
+        <div class="row"><span class="nm ${g.away?'':'tbd'} ${aw?'win':''}">${g.away||'TBD'}</span><span class="sc">${g.played ? (aw?'W':'L') : ''}</span></div>
+        <div class="meta">${g.diamond} &middot; ${g.date}</div></div>`;
+    }else{
+      gs.forEach(g=>{
+        const hw = g.played && (g.hs === "W" || g.as === "L");
+        const aw = g.played && (g.as === "W" || g.hs === "L");
+        col.innerHTML+=`<div class="match">
+          <div class="row"><span class="nm ${g.home?'':'tbd'} ${hw?'win':''}">${g.home||'TBD'}</span><span class="sc">${g.played ? (hw?'W':'L') : ''}</span></div>
+          <div class="row"><span class="nm ${g.away?'':'tbd'} ${aw?'win':''}">${g.away||'TBD'}</span><span class="sc">${g.played ? (aw?'W':'L') : ''}</span></div>
+          <div class="meta">${g.diamond} &middot; ${g.date}</div></div>`;
+      });
+    }
+    host.appendChild(col);
+  });
+}
+
+function renderLocations(){
+  const host=document.getElementById("locbody");host.innerHTML="";
+  LOCATIONS.forEach(L=>{
+    const q=encodeURIComponent(L.addr);
+    const g=`https://www.google.com/maps/search/?api=1&query=${q}`;
+    const a=`https://maps.apple.com/?q=${q}`;
+    const el=document.createElement("div");el.className="loc";
+    el.innerHTML=`<div class="top"><span class="nm">${L.nm}</span><span class="city">${L.city}</span></div>
+      <p class="addr">${L.addr}</p>
+      ${L.note?`<p class="note">${L.note}</p>`:""}
+      <div class="links">
+        <a class="map g" href="${g}" target="_blank" rel="noopener">Google Maps</a>
+        <a class="map a" href="${a}" target="_blank" rel="noopener">Apple Maps</a>
+      </div>`;
+    host.appendChild(el);
+  });
+}
+
+document.querySelectorAll(".tab").forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected","false"));
+    t.setAttribute("aria-selected","true");
+    document.querySelectorAll("section").forEach(s=>s.classList.remove("on"));
+    document.getElementById(t.dataset.t).classList.add("on");
+  };
+});
+
+/* ---- boot ---- */
+(async()=>{
+  const {map,state}=await loadScores();
+  const games=merge(map);
+  renderStandings(standings(games));
+  renderSchedule(games);
+  renderBracket(games);
+  renderLocations();
+  const sb=document.getElementById("status");
+  const dot=document.getElementById("livedot"),lt=document.getElementById("livetxt");
+  if(state==="ok"){sb.style.display="none";dot.className="dot live";lt.textContent="Live scores";}
+  else if(state==="nourl"){sb.style.display="none";}
+  else{sb.className="statusbar err";sb.textContent="Couldn't reach the sheet. Showing the schedule. Check the share setting is 'Anyone with the link'.";}
+})();
+</script>
+</body>
+</html>
