@@ -82,7 +82,8 @@ table{width:100%;border-collapse:collapse}
 .score{display:flex;align-items:center;gap:7px;font-family:"DM Mono";font-weight:500;font-size:18px}
 .score .v{min-width:20px;text-align:center}
 .score .x{font-size:11px;color:var(--muted);font-family:Oswald}
-.win{color:var(--def);font-weight:700;}
+.win{color:var(--gold);font-weight:700;animation:gshine 1.5s ease-in-out infinite alternate;}
+@keyframes gshine{from{text-shadow:0 0 3px var(--gold);}to{text-shadow:0 0 10px var(--gold), 0 0 15px #FFD700; color:#FFF7D6;}}
 .lose{color:var(--muted)}
 .badge{font-family:Oswald;font-weight:600;font-size:9px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--clay);border:1px solid var(--clay);border-radius:4px;padding:1px 5px}
